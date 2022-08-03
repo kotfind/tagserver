@@ -1,0 +1,17 @@
+CREATE TABLE files(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(255),
+    imgFilename CHAR(32) NOT NULL UNIQUE,
+    thumbFilename CHAR(32) NOT NULL UNIQUE
+);
+
+CREATE TABLE tags(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE fileTags(
+    tagId INTEGER NOT NULL,
+    fileId INTEGER NOT NULL,
+    UNIQUE (tagId, fileId)
+);
