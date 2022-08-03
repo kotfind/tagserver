@@ -1,0 +1,36 @@
+{% extends 'base.j2' %}
+
+{% block title %}Upload Image{% endblock %}
+
+{% block head %}
+<style>
+
+textarea {
+    width: 300px;
+    height: 300px;
+}
+
+</style>
+{% endblock %}
+
+{% block contents %}
+<form method="post" enctype="multipart/form-data">
+    <b>Upload Image</b>
+    <br>
+    <br>
+
+    <label>Image File:</label>
+    <br>
+    <input type="file" name="img" required>
+    <br>
+    <br>
+
+    <label>Tags:</label>
+    <br>
+    <textarea name="tags"></textarea>
+    <br>
+    <br>
+
+    <input type="submit">
+</form>
+{% endblock %}
