@@ -23,11 +23,12 @@ def upload():
     if flask.request.method == 'GET':
         return flask.render_template('upload.j2')
 
-    file = flask.request.files['img']
-    tags = map(lambda s: s.strip(),
-        flask.request.form['tags'].splitlines())
+    files = flask.request.files.getlist('imgs[]')
+    tags = list(map(lambda s: s.strip(),
+        flask.request.form['tags'].splitlines()))
 
-    logics.saveFile(file, tags)
+    for file in files:
+        logics.saveFile(file, tags)
 
     return flask.redirect(flask.request.url)
 
