@@ -6,7 +6,9 @@
     <ul>
         {% for tag in tags %}
             <li>
-                {{- tag -}}
+                <a href="/?tags={{- tag -}}">
+                    {{- tag -}}
+                </a>
             </li>
         {% endfor %}
     </ul>
