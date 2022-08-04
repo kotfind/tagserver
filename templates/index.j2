@@ -1,0 +1,30 @@
+{% extends 'base.j2' %}
+
+{% block title %}Main Page{% endblock %}
+
+{% block head %}
+<style>
+
+#tagsForm {
+    display: flex;
+    justify-content: center;
+}
+
+</style>
+{% endblock %}
+
+{% block contents %}
+    <form id="tagsForm">
+        <div id="searchWrapper">
+            <input type="text" name="tags"
+                   id="tagsField" placeholder="Tags"
+                  value="{{ request.args.get('tags', '') }}">
+            <input type="submit">
+            <hr>
+        </div>
+    </form>
+
+    {% for file in files %}
+        <img src="/thumb/{{ file.thumbFilename }}">
+    {% endfor %}
+{% endblock %}

@@ -3,6 +3,7 @@ import os
 import shutil
 import uuid
 from PIL import Image
+from File import File
 
 def init(cfg):
     '''
@@ -85,3 +86,32 @@ def saveFile(file, tags):
                 ''', (tag, fileIdx))
 
             con.commit()
+
+def getFiles(tags):
+    with sqlite3.connect(dbFile) as con:
+        cur = con.cursor()
+
+        if tags:
+            cur.execute('''
+                SELECT *
+                FROM files
+                WHERE id IN (
+                    SELECT fileId
+                    FROM fileTags
+                    WHERE tagId IN (
+                        SELECT id
+                        FROM tags
+                        WHERE name IN ({})
+                    )
+                    GROUP BY fileId
+                    HAVING COUNT(*) = ?
+                )
+                '''.format(','.join(['?'] * len(tags))),
+                tuple(tags) + (len(tags),))
+        else:
+            cur.execute('''
+                SELECT *
+                FROM files;
+            ''')
+
+        return list(map(lambda f: File(*f), cur.fetchall()))

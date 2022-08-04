@@ -16,7 +16,11 @@ logics.init(cfg)
 
 @app.route('/')
 def index():
-    return 'Hello, world!'
+    tags = flask.request.args.get('tags', '').split()
+    return flask.render_template(
+        'index.j2',
+        files=logics.getFiles(tags)
+        )
 
 @app.route('/upload', methods=['POST', 'GET'])
 def upload():
@@ -31,6 +35,14 @@ def upload():
         logics.saveFile(file, tags)
 
     return flask.redirect(flask.request.url)
+
+@app.route('/img/<string:filename>')
+def img(filename):
+    return flask.send_from_directory(logics.imgDir, filename)
+
+@app.route('/thumb/<string:filename>')
+def thumb(filename):
+    return flask.send_from_directory(logics.thumbDir, filename)
 
 if __name__ == '__main__':
     waitress.serve(app, host='0.0.0.0', port=int(cfg['Network']['port']))
