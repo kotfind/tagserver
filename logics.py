@@ -185,3 +185,11 @@ def checkUser(user, password):
 
 def hashPassword(password):
     return hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+def addUser(user, password):
+    with sqlite3.connect(dbFile) as con:
+        con.execute('''
+            INSERT
+            INTO users
+            VALUES (?, ?)
+        ''', (user, hashPassword(password)))

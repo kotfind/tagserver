@@ -6,13 +6,35 @@ import flask
 import waitress
 import configparser 
 import os
+import sys
+import getpass
 
 os.chdir(os.path.dirname(__file__))
-
-app = flask.Flask(__name__)
-
 cfg = configparser.ConfigParser()
 logics.init(cfg)
+
+def usage():
+    print('Usage: {} run|adduser'.format(sys.argv[0]))
+
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        usage()
+        exit(1)
+
+    cmd = sys.argv[1].lower()
+
+    if cmd == 'adduser':
+        print('Adding new user')
+        user = input('User: ').strip()
+        password = getpass.getpass('Password: ').strip()
+        logics.addUser(user, password)
+        exit(0)
+    elif cmd != 'run':
+        usage()
+        exit(1)
+
+
+app = flask.Flask(__name__)
 
 @app.route('/')
 def index():
