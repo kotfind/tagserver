@@ -36,6 +36,22 @@ def upload():
 
     return flask.redirect(flask.request.url)
 
+@app.route('/file/<int:idx>', methods=['POST', 'GET'])
+def file(idx):
+    if flask.request.method == 'GET':
+        return flask.render_template(
+            'file.j2',
+            file = logics.getFile(idx),
+            tags = '\n'.join(logics.getTags(idx))
+            )
+
+    tags = list(map(lambda s: s.strip(),
+        flask.request.form['tags'].splitlines()))
+
+    logics.updateTags(idx, tags)
+
+    return flask.redirect(flask.request.url)
+
 @app.route('/img/<string:filename>')
 def img(filename):
     return flask.send_from_directory(logics.imgDir, filename)

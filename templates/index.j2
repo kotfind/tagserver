@@ -50,9 +50,9 @@
 
     <div id="imgsContainer">
         {% for file in files %}
-            <div class="imgWrapper">
+            <a class="imgWrapper" href="/file/{{ file.idx }}">
                 <img class="img" src="/thumb/{{ file.thumbFilename }}">
-            </div>
+            </a>
         {% endfor %}
     </div>
 {% endblock %}

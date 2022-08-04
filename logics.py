@@ -67,25 +67,9 @@ def saveFile(file, tags):
                 VALUES (?, ?)
             ''', (imgFilename, thumbFilename))
             fileIdx = cur.lastrowid
-
-            for tag in tags:
-                try:
-                    con.execute('''
-                        INSERT INTO tags(name)
-                        VALUES (?)
-                    ''', (tag,))
-                except sqlite3.IntegrityError: # if tag already exists
-                    pass
-
-                con.execute('''
-                    INSERT INTO fileTags(tagId, fileId)
-                        SELECT tags.id, files.id
-                        FROM tags, files
-                        WHERE tags.name = ?
-                          AND files.id = ?
-                ''', (tag, fileIdx))
-
             con.commit()
+
+            updateTags(fileIdx, tags)
 
 def getFiles(tags):
     with sqlite3.connect(dbFile) as con:
@@ -115,3 +99,60 @@ def getFiles(tags):
             ''')
 
         return list(map(lambda f: File(*f), cur.fetchall()))
+
+def getFile(idx):
+    with sqlite3.connect(dbFile) as con:
+        cur = con.cursor()
+
+        cur.execute('''
+            SELECT *
+            FROM files
+            WHERE id = ?
+        ''', (idx,))
+
+        fileTuple = cur.fetchone()
+
+        return File(*fileTuple)\
+            if fileTuple\
+            else None
+
+def getTags(idx):
+    with sqlite3.connect(dbFile) as con:
+        cur = con.cursor()
+
+        cur.execute('''
+            SELECT tags.name
+            FROM tags, fileTags
+            WHERE fileTags.fileId = ?
+              AND fileTags.tagId = tags.id
+            ORDER BY tags.name
+        ''', (idx,))
+
+        return list(map(lambda t: t[0], cur.fetchall()))
+
+def updateTags(idx, tags):
+    with sqlite3.connect(dbFile) as con:
+        cur = con.cursor()
+
+        con.execute('''
+            DELETE
+            FROM fileTags
+            WHERE fileId = ?
+        ''', (idx,))
+
+        for tag in tags:
+            try:
+                con.execute('''
+                    INSERT INTO tags(name)
+                    VALUES (?)
+                ''', (tag,))
+            except sqlite3.IntegrityError: # if tag already exists
+                pass
+
+            con.execute('''
+                INSERT INTO fileTags(tagId, fileId)
+                    SELECT tags.id, files.id
+                    FROM tags, files
+                    WHERE tags.name = ?
+                      AND files.id = ?
+            ''', (tag, idx))
