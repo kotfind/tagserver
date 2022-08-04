@@ -4,6 +4,7 @@ import shutil
 import uuid
 from PIL import Image
 from File import File
+import hashlib
 
 def init(cfg):
     '''
@@ -168,3 +169,19 @@ def getAllTags():
         ''')
 
         return list(map(lambda t: t[0], cur.fetchall()))
+
+def checkUser(user, password):
+    with sqlite3.connect(dbFile) as con:
+        cur = con.cursor()
+
+        cur.execute('''
+            SELECT 1
+            FROM users
+            WHERE user = ?
+              AND password = ?
+        ''', (user, password))
+
+        return bool(cur.fetchone())
+
+def hashPassword(password):
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()

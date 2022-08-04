@@ -14,3 +14,8 @@ CREATE TABLE fileTags(
     fileId INTEGER NOT NULL REFERENCES files(id),
     UNIQUE (tagId, fileId)
 );
+
+CREATE TABLE users(
+    user VARCHAR(255) NOT NULL UNIQUE,
+    password CHAR(32) NOT NULL
+);

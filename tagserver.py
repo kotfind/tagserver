@@ -67,5 +67,27 @@ def taglist():
         tags = logics.getAllTags()
         )
 
+@app.before_request
+def before_request():
+    if flask.request.path == '/login':
+        return
+
+    user = flask.request.cookies.get('user')
+    password = flask.request.cookies.get('password')
+
+    if not logics.checkUser(user, password):
+        return flask.redirect('/login')
+
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    if flask.request.method == 'GET':
+        return flask.render_template('login.j2')
+
+    resp = flask.make_response(flask.redirect('/'))
+    resp.set_cookie('user', flask.request.form['user'].strip())
+    resp.set_cookie('password', logics.hashPassword(flask.request.form['password'].strip()))
+
+    return resp
+
 if __name__ == '__main__':
     waitress.serve(app, host='0.0.0.0', port=int(cfg['Network']['port']))
