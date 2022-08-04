@@ -110,4 +110,8 @@ def login():
     return resp
 
 if __name__ == '__main__':
-    waitress.serve(app, host='0.0.0.0', port=int(cfg['Network']['port']))
+    waitress.serve(app,
+        host='0.0.0.0',
+        port=int(cfg['Network']['port']),
+        threads=int(cfg['Network']['threads'])
+        )
