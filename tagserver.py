@@ -60,5 +60,12 @@ def img(filename):
 def thumb(filename):
     return flask.send_from_directory(logics.thumbDir, filename)
 
+@app.route('/taglist')
+def taglist():
+    return flask.render_template(
+        'taglist.j2',
+        tags = logics.getAllTags()
+        )
+
 if __name__ == '__main__':
     waitress.serve(app, host='0.0.0.0', port=int(cfg['Network']['port']))

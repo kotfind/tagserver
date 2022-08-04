@@ -156,3 +156,15 @@ def updateTags(idx, tags):
                     WHERE tags.name = ?
                       AND files.id = ?
             ''', (tag, idx))
+
+def getAllTags():
+    with sqlite3.connect(dbFile) as con:
+        cur = con.cursor()
+
+        cur.execute('''
+            SELECT name
+            FROM tags
+            ORDER BY name
+        ''')
+
+        return list(map(lambda t: t[0], cur.fetchall()))

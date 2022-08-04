@@ -1,0 +1,13 @@
+{% extends 'base.j2' %}
+
+{% block title %}Tag List{% endblock %}
+
+{% block contents %}
+    <ul>
+        {% for tag in tags %}
+            <li>
+                {{- tag -}}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
