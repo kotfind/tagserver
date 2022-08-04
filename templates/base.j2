@@ -20,6 +20,16 @@
             body {
                 padding: 10px;
             }
+
+            header>a:before {
+                content: "";
+                display: inline-block;
+                width: 0.5em;
+                height: 0.5em;
+                margin-right: 0.2em;
+                background-color: black;
+                border-radius: 0.5em;
+            }
         </style>
 
         {% block head %}
@@ -27,7 +37,8 @@
     </head>
     <body>
         <header>
-            <a href="/">To main page</a>
+            <a href="/">Main</a>
+            <a href="/upload">Upload</a>
             <hr>
         </header>
 
