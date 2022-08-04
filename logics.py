@@ -6,6 +6,9 @@ from PIL import Image
 from File import File
 import hashlib
 
+def static(path):
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
+
 def init(cfg):
     '''
         Copy exmaple config to ~ if not exists, init cfg
@@ -15,7 +18,7 @@ def init(cfg):
 
     cfgFile = os.path.realpath(os.path.expanduser('~/.tagserver.cfg'))
     if not os.path.exists(cfgFile):
-        shutil.copy(os.path.realpath('.tagserver.cfg'), cfgFile)
+        shutil.copy(static('.tagserver.cfg'), cfgFile)
     cfg.read(cfgFile)
 
     global imgDir, thumbDir, dbFile, imgExtensions, maxThumbSize
@@ -35,7 +38,7 @@ def init(cfg):
 
     with sqlite3.connect(dbFile) as con:
         if firstRun:
-            with open('schema.sql', 'r') as f:
+            with open(static('schema.sql'), 'r') as f:
                 con.executescript(f.read())
             con.commit()
 

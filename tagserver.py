@@ -9,7 +9,6 @@ import os
 import sys
 import getpass
 
-os.chdir(os.path.dirname(__file__))
 cfg = configparser.ConfigParser()
 logics.init(cfg)
 
@@ -33,8 +32,7 @@ if __name__ == '__main__':
         usage()
         exit(1)
 
-
-app = flask.Flask(__name__)
+app = flask.Flask(__name__, template_folder = logics.static('templates'))
 
 @app.route('/')
 def index():
