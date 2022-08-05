@@ -36,7 +36,7 @@ app = flask.Flask(__name__, template_folder = logics.static('templates'))
 
 @app.route('/')
 def index():
-    tags = flask.request.args.get('tags', '').split()
+    tags = flask.request.args.get('tags', '').lower().split()
     return flask.render_template(
         'index.j2',
         files=logics.getFiles(tags)
@@ -48,7 +48,7 @@ def upload():
         return flask.render_template('upload.j2')
 
     files = flask.request.files.getlist('imgs[]')
-    tags = list(map(lambda s: s.strip(),
+    tags = list(map(lambda s: s.strip().lower().replace(' ', '_'),
         flask.request.form['tags'].splitlines()))
 
     for file in files:
@@ -65,7 +65,7 @@ def file(idx):
             tags = '\n'.join(logics.getTags(idx))
             )
 
-    tags = list(map(lambda s: s.strip(),
+    tags = list(map(lambda s: s.strip().lower().replace(' ', '_'),
         flask.request.form['tags'].splitlines()))
 
     logics.updateTags(idx, tags)
