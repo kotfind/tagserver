@@ -79,11 +79,20 @@ def getFiles(tags):
     with sqlite3.connect(dbFile) as con:
         cur = con.cursor()
 
-        if tags:
+        includeTags = []
+        excludeTags = []
+        for tag in tags:
+            if tag[0] == '-':
+                excludeTags.append(tag[1:])
+            else:
+                includeTags.append(tag)
+
+        if includeTags:
             cur.execute('''
                 SELECT *
                 FROM files
                 WHERE id IN (
+                -- include
                     SELECT fileId
                     FROM fileTags
                     WHERE tagId IN (
@@ -94,13 +103,38 @@ def getFiles(tags):
                     GROUP BY fileId
                     HAVING COUNT(*) = ?
                 )
-                '''.format(','.join(['?'] * len(tags))),
-                tuple(tags) + (len(tags),))
+                AND id NOT IN (
+                -- exclude
+                    SELECT fileId
+                    FROM fileTags
+                    WHERE tagId IN (
+                        SELECT id
+                        FROM tags
+                        WHERE name IN ({})
+                    )
+                )
+                '''.format(
+                    ','.join(['?'] * len(includeTags)),
+                    ','.join(['?'] * len(excludeTags))
+                    ),
+                tuple(includeTags) + (len(includeTags),) +
+                tuple(excludeTags))
         else:
             cur.execute('''
                 SELECT *
-                FROM files;
-            ''')
+                FROM files
+                WHERE id NOT IN (
+                -- exclude
+                    SELECT fileId
+                    FROM fileTags
+                    WHERE tagId IN (
+                        SELECT id
+                        FROM tags
+                        WHERE name IN ({})
+                    )
+                )
+                '''.format(','.join(['?'] * len(excludeTags))),
+                tuple(excludeTags))
 
         return list(map(lambda f: File(*f), cur.fetchall()))
 
