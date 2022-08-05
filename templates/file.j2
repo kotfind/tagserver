@@ -14,7 +14,7 @@
     max-width: 100%;
 }
 
-#tagsForm {
+form {
     margin-top: 20px;
     display: flex;
     justify-content: center;
@@ -44,6 +44,19 @@
             <br>
 
             <input type="submit" value="Save">
+        </div>
+    </form>
+
+    <form id="deleteForm" method="post" action="/delete/{{ file.idx }}">
+        <div>
+            <b>Delete:</b>
+            <br>
+
+            <input type="checkbox" id="deleteCheckbox" required>
+            <label for="deleteCheckbox">I realy want to delete this file</label>
+            <br>
+
+            <input type="submit" value="Delete">
         </div>
     </form>
 {% endblock %}

@@ -196,3 +196,31 @@ def addUser(user, password):
             INTO users
             VALUES (?, ?)
         ''', (user, hashPassword(password)))
+
+def deleteFile(idx):
+    file = getFile(idx)
+
+    os.remove(os.path.join(imgDir, file.imgFilename))
+    os.remove(os.path.join(thumbDir, file.thumbFilename))
+
+    with sqlite3.connect(dbFile) as con:
+        con.execute('''
+            DELETE
+            FROM files
+            WHERE id = ?
+        ''', (file.idx,))
+
+        con.execute('''
+            DELETE
+            FROM fileTags
+            WHERE fileId = ?
+        ''', (file.idx,))
+
+        con.execute('''
+            DELETE
+            FROM tags
+            WHERE id NOT IN (
+                SELECT DISTINCT tagId
+                FROM fileTags
+            )
+        ''')

@@ -87,6 +87,12 @@ def taglist():
         tags = logics.getAllTags()
         )
 
+@app.route('/delete/<int:idx>', methods=['POST'])
+def delete(idx):
+    logics.deleteFile(idx)
+
+    return flask.redirect('/')
+
 @app.before_request
 def before_request():
     if flask.request.path == '/login':
