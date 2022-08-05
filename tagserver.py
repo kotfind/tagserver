@@ -39,7 +39,8 @@ def index():
     tags = flask.request.args.get('tags', '').lower().split()
     return flask.render_template(
         'index.j2',
-        files=logics.getFiles(tags)
+        files = logics.getFiles(tags),
+        maxThumbSize = logics.maxThumbSize
         )
 
 @app.route('/upload', methods=['POST', 'GET'])
