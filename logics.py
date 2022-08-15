@@ -195,6 +195,15 @@ def updateTags(idx, tags):
                       AND files.id = ?
             ''', (tag, idx))
 
+            con.execute('''
+                DELETE
+                FROM tags
+                WHERE id NOT IN (
+                    SELECT DISTINCT tagId
+                    FROM fileTags
+                )
+            ''')
+
 def getAllTags():
     with sqlite3.connect(dbFile) as con:
         cur = con.cursor()
