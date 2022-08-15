@@ -59,7 +59,7 @@
         <div id="searchWrapper">
             <input type="text" name="tags"
                    id="tagsField" placeholder="Tags"
-                  value="{{ request.args.get('tags', '') }}">
+                  value="{{ ' '.join(tags) }}">
             <input type="submit">
             <hr>
         </div>
@@ -67,7 +67,7 @@
 
     <div id="imgsContainer">
         {% for file in files %}
-            <a class="imgWrapper" href="/file/{{ file.idx }}">
+            <a class="imgWrapper" href="/file/{{ file.idx }}?queryTags={{ '+'.join(tags) }}">
                 <img class="img" src="/thumb/{{ file.thumbFilename }}">
             </a>
         {% endfor %}

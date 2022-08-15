@@ -37,10 +37,11 @@ app = flask.Flask(__name__, template_folder = logics.static('templates'))
 @app.route('/')
 def index():
     tags = flask.request.args.get('tags', '').lower().split()
+
     return flask.render_template(
         'index.j2',
         files = logics.getFiles(tags),
-        maxThumbSize = logics.maxThumbSize
+        tags = tags
         )
 
 @app.route('/upload', methods=['POST', 'GET'])
@@ -61,11 +62,18 @@ def upload():
 def file(idx):
     if flask.request.method == 'GET':
         file = logics.getFile(idx)
+        ownTags = logics.getTags(idx)
+        queryTags = flask.request.args.get('queryTags', '').lower().split()
+        prevId, nextId = logics.getNeighbours(queryTags, idx)
+
         return flask.render_template(
             'file.j2',
             file = file,
-            tags = '\n'.join(logics.getTags(idx)),
-            isVideo = logics.isVideo(file.imgFilename)
+            ownTags = ownTags,
+            queryTags = queryTags,
+            isVideo = logics.isVideo(file.imgFilename),
+            prevId = prevId,
+            nextId = nextId,
             )
 
     tags = list(map(lambda s: s.strip().lower().replace(' ', '_'),

@@ -25,12 +25,46 @@ form {
     height: 300px;
 }
 
+#btnWrapper {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    height: 40px;
+}
+
+.btn {
+    flex: 1 1 auto;
+    height: 100%;
+    transition: 0.1s linear;
+}
+
+.btn:not([href]) {
+    opacity: 0;
+}
+
+.btn[href]:hover {
+    transform: scale(1.04);
+}
+
+.btn:first-child {
+    background-color: blue;
+}
+
+.btn:last-child {
+    background-color: red;
+}
+
 </style>
 {% endblock %}
 
 {% block contents %}
+    <div id="btnWrapper">
+        <a class="btn" {% if prevId %}href="/file/{{ prevId }}?queryTags={{ '+'.join(queryTags) }}" {% endif %}></a>
+        <a class="btn" {% if nextId %}href="/file/{{ nextId }}?queryTags={{ '+'.join(queryTags) }}" {% endif %}></a>
+    </div>
+
     <div id="fileWrapper">
-    <{% if isVideo %}video controls{% else %}img{%endif%} id="file" src="/img/{{ file.imgFilename }}">
+        <{% if isVideo %}video controls{% else %}img{%endif%} id="file" src="/img/{{ file.imgFilename }}">
     </div>
 
     <form id="tagsForm" method="post">
@@ -39,7 +73,7 @@ form {
             <br>
 
             <textarea id="tags" name="tags">
-                {{- tags -}}
+                {{- '\n'.join(ownTags) -}}
             </textarea>
             <br>
 

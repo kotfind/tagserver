@@ -274,3 +274,12 @@ def deleteFile(idx):
                 FROM fileTags
             )
         ''')
+
+def getNeighbours(tags, idx):
+    files = getFiles(tags)
+
+    for i in range(len(files)):
+        if files[i].idx == idx:
+            prevIdx = files[i - 1].idx if i > 0 else None
+            nextIdx = files[i + 1].idx if i + 1 < len(files) else None
+            return (prevIdx, nextIdx)
