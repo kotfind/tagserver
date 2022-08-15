@@ -3,6 +3,7 @@ import os
 import shutil
 import uuid
 from PIL import Image
+from pyffmpeg import FFmpeg
 from File import File
 import hashlib
 
@@ -21,13 +22,14 @@ def init(cfg):
         shutil.copy(static('.tagserver.cfg'), cfgFile)
     cfg.read(cfgFile)
 
-    global imgDir, thumbDir, dbFile, imgExtensions, maxThumbSize
+    global imgDir, thumbDir, dbFile, imgExtensions, videoExtensions, maxThumbSize
     storage = os.path.realpath(os.path.expanduser(cfg['File System']['storage']))
     imgDir = os.path.join(storage, 'img')
     thumbDir = os.path.join(storage, 'thumb')
     dbFile = os.path.join(storage, 'main.db')
-    imgExtensions = cfg['Image']['image extensions'].split()
-    maxThumbSize = tuple(map(int, cfg['Image']['thumb size'].split('x')))
+    imgExtensions = cfg['Files']['image extensions'].split()
+    videoExtensions = cfg['Files']['video extensions'].split()
+    maxThumbSize = tuple(map(int, cfg['Files']['thumb size'].split('x')))
 
     firstRun = not os.path.exists(storage)
 
@@ -42,16 +44,21 @@ def init(cfg):
                 con.executescript(f.read())
             con.commit()
 
+def isVideo(filename):
+    return os.path.splitext(filename)[1].lower() in videoExtensions
+
 def saveThumb(imgFilename, thumbFilename):
-    image = Image.open(imgFilename)
-    image.thumbnail(maxThumbSize)
-    image = image.convert('RGB')
-    image.save(thumbFilename)
+    if isVideo(imgFilename):
+        FFmpeg().convert(imgFilename, thumbFilename)
+    else:
+        image = Image.open(imgFilename)
+        image.thumbnail(maxThumbSize)
+        image = image.convert('RGB')
+        image.save(thumbFilename)
 
 def saveFile(file, tags):
     ext = os.path.splitext(file.filename)[1].lower()
-    if ext in imgExtensions:
-
+    if ext in imgExtensions + videoExtensions:
         # Upload and save
         noExtName = uuid.uuid4().hex
         imgFilename = noExtName + ext

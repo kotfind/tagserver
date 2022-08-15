@@ -5,12 +5,12 @@
 {% block head %}
 <style>
 
-#imgWrapper {
+#fileWrapper {
     display: flex;
     justify-content: center;
 }
 
-#img {
+#file {
     max-width: 100%;
 }
 
@@ -29,8 +29,8 @@ form {
 {% endblock %}
 
 {% block contents %}
-    <div id="imgWrapper">
-        <img id="img" src="/img/{{ file.imgFilename }}">
+    <div id="fileWrapper">
+    <{% if isVideo %}video controls{% else %}img{%endif%} id="file" src="/img/{{ file.imgFilename }}">
     </div>
 
     <form id="tagsForm" method="post">

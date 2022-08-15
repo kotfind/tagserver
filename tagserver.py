@@ -60,10 +60,12 @@ def upload():
 @app.route('/file/<int:idx>', methods=['POST', 'GET'])
 def file(idx):
     if flask.request.method == 'GET':
+        file = logics.getFile(idx)
         return flask.render_template(
             'file.j2',
-            file = logics.getFile(idx),
-            tags = '\n'.join(logics.getTags(idx))
+            file = file,
+            tags = '\n'.join(logics.getTags(idx)),
+            isVideo = logics.isVideo(file.imgFilename)
             )
 
     tags = list(map(lambda s: s.strip().lower().replace(' ', '_'),
