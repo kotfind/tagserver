@@ -118,6 +118,14 @@ def login():
 
     return resp
 
+@app.route('/logout')
+def logout():
+    resp = flask.make_response(flask.redirect('/'))
+    resp.set_cookie('user', '', 0)
+    resp.set_cookie('password', '', 0)
+
+    return resp
+
 if __name__ == '__main__':
     waitress.serve(app,
         host='0.0.0.0',
