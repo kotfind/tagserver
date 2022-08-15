@@ -8,6 +8,8 @@
 #fileWrapper {
     display: flex;
     justify-content: center;
+
+    position: relative;
 }
 
 #file {
@@ -46,13 +48,9 @@ form {
     transform: scale(1.04);
 }
 
-.btn:first-child {
-    background-color: blue;
-}
-
-.btn:last-child {
-    background-color: red;
-}
+.btn:nth-child(1) { background-color: blue; }
+.btn:nth-child(2) { background-color: green; }
+.btn:nth-child(3) { background-color: red; }
 
 </style>
 {% endblock %}
@@ -60,12 +58,13 @@ form {
 {% block contents %}
     <div id="btnWrapper">
         <a class="btn" {% if prevId %}href="/file/{{ prevId }}?queryTags={{ '+'.join(queryTags) }}" {% endif %}></a>
+        <a class="btn" href="/?tags={{ '+'.join(queryTags) }}#file{{ file.idx }}"></a>
         <a class="btn" {% if nextId %}href="/file/{{ nextId }}?queryTags={{ '+'.join(queryTags) }}" {% endif %}></a>
     </div>
 
-    <div id="fileWrapper">
-        <{% if isVideo %}video controls{% else %}img{%endif%} id="file" src="/img/{{ file.imgFilename }}">
-    </div>
+    <a id="fileWrapper" {% if not isVideo and nextId %}href="/file/{{ nextId }}?queryTags={{ '+'.join(queryTags) }}"{% endif %}>
+        <{% if isVideo %}video controls{% else %}img{% endif %} id="file" src="/img/{{ file.imgFilename }}">
+    </a>
 
     <form id="tagsForm" method="post">
         <div>
