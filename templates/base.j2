@@ -34,12 +34,18 @@
             #logoutLink {
                 float: right;
             }
+
+            #top {
+                position: absolute;
+                top: 0;
+            }
         </style>
 
         {% block head %}
         {% endblock %}
     </head>
     <body>
+        <span id="top"></span>
         <header>
             <a href="/">Main</a>
             <a href="/upload">Upload</a>
