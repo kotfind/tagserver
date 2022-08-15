@@ -13,20 +13,17 @@
 #imgsContainer {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;;
-    gap: 10px;
-
-    max-width: calc(3 * 20px + 4 * {{ maxThumbSize[0] }}px);
-    margin: 0 auto;
+    justify-content: space-around;
 }
 
 .imgWrapper {
-    max-height: {{ maxThumbSize[1] }}px;
-    flex: 1 0 {{ maxThumbSize[0] }}px;
+    max-height: 45vh;
+    width: 50%;
 
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 5px;
 }
 
 .img {
