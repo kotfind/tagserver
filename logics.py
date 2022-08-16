@@ -107,10 +107,7 @@ def getFiles(tags):
 
         # include where section
         if includeTags:
-            query = query.format(
-                order='{order}',
-                excludeWhere='{excludeWhere}',
-                includeWhere='''
+            query = query.replace('{includeWhere}', '''
                 id IN(
                     SELECT fileId
                     FROM fileTags
@@ -125,15 +122,10 @@ def getFiles(tags):
             '''.format(','.join(['?'] * len(includeTags))))
             queryParams += tuple(includeTags) + (len(includeTags),)
         else:
-            query = query.format(
-                order='{order}',
-                excludeWhere='{excludeWhere}',
-                includeWhere='TRUE')
+            query = query.replace('{includeWhere}', 'TRUE')
 
         # exclude where section
-        query = query.format(
-            order='{order}',
-            excludeWhere='''
+        query = query.replace('{excludeWhere}', '''
             id NOT IN (
                 SELECT fileId
                 FROM fileTags
@@ -147,8 +139,7 @@ def getFiles(tags):
         queryParams += tuple(excludeTags)
 
         # order sectinon
-        query = query.format(
-            order='''
+        query = query.replace('{order}', '''
             ORDER BY (
                 CASE
                 WHEN id IN (
