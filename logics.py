@@ -94,12 +94,20 @@ def getFiles(tags):
             else:
                 includeTags.append(tag)
 
+        query = '''
+            SELECT *
+            FROM files
+            WHERE TRUE
+              AND {includeWhere}
+              AND {excludeWhere}
+        '''
+        queryParams = ()
+
+        # include where section
         if includeTags:
-            cur.execute('''
-                SELECT *
-                FROM files
-                WHERE id IN (
-                -- include
+            query = query.format(excludeWhere="{excludeWhere}",
+                includeWhere='''
+                id IN(
                     SELECT fileId
                     FROM fileTags
                     WHERE tagId IN (
@@ -110,38 +118,27 @@ def getFiles(tags):
                     GROUP BY fileId
                     HAVING COUNT(*) = ?
                 )
-                AND id NOT IN (
-                -- exclude
-                    SELECT fileId
-                    FROM fileTags
-                    WHERE tagId IN (
-                        SELECT id
-                        FROM tags
-                        WHERE name IN ({})
-                    )
-                )
-                '''.format(
-                    ','.join(['?'] * len(includeTags)),
-                    ','.join(['?'] * len(excludeTags))
-                    ),
-                tuple(includeTags) + (len(includeTags),) +
-                tuple(excludeTags))
+            '''.format(','.join(['?'] * len(includeTags))))
+            queryParams += tuple(includeTags) + (len(includeTags),)
         else:
-            cur.execute('''
-                SELECT *
-                FROM files
-                WHERE id NOT IN (
-                -- exclude
-                    SELECT fileId
-                    FROM fileTags
-                    WHERE tagId IN (
-                        SELECT id
-                        FROM tags
-                        WHERE name IN ({})
-                    )
+            query = query.format(excludeWhere="{excludeWhere}", includeWhere="TRUE")
+
+        # exclude where section
+        query = query.format(excludeWhere='''
+            id NOT IN (
+            -- exclude
+                SELECT fileId
+                FROM fileTags
+                WHERE tagId IN (
+                    SELECT id
+                    FROM tags
+                    WHERE name IN ({})
                 )
-                '''.format(','.join(['?'] * len(excludeTags))),
-                tuple(excludeTags))
+            )
+        '''.format(','.join(['?'] * len(excludeTags))));
+        queryParams += tuple(excludeTags)
+
+        cur.execute(query, queryParams)
 
         return list(map(lambda f: File(*f), cur.fetchall()))
 
