@@ -22,7 +22,7 @@ def init(cfg):
         shutil.copy(static('.tagserver.cfg'), cfgFile)
     cfg.read(cfgFile)
 
-    global imgDir, thumbDir, dbFile, imgExtensions, videoExtensions, maxThumbSize
+    global imgDir, thumbDir, dbFile, imgExtensions, videoExtensions, maxThumbSize, orderTags
     storage = os.path.realpath(os.path.expanduser(cfg['File System']['storage']))
     imgDir = os.path.join(storage, 'img')
     thumbDir = os.path.join(storage, 'thumb')
@@ -30,6 +30,7 @@ def init(cfg):
     imgExtensions = cfg['Files']['image extensions'].split()
     videoExtensions = cfg['Files']['video extensions'].split()
     maxThumbSize = tuple(map(int, cfg['Files']['thumb size'].split('x')))
+    orderTags = cfg['Files']['order tags'].split()
 
     firstRun = not os.path.exists(storage)
 
@@ -100,12 +101,15 @@ def getFiles(tags):
             WHERE TRUE
               AND {includeWhere}
               AND {excludeWhere}
+            {order}
         '''
         queryParams = ()
 
         # include where section
         if includeTags:
-            query = query.format(excludeWhere="{excludeWhere}",
+            query = query.format(
+                order='{order}',
+                excludeWhere='{excludeWhere}',
                 includeWhere='''
                 id IN(
                     SELECT fileId
@@ -121,12 +125,16 @@ def getFiles(tags):
             '''.format(','.join(['?'] * len(includeTags))))
             queryParams += tuple(includeTags) + (len(includeTags),)
         else:
-            query = query.format(excludeWhere="{excludeWhere}", includeWhere="TRUE")
+            query = query.format(
+                order='{order}',
+                excludeWhere='{excludeWhere}',
+                includeWhere='TRUE')
 
         # exclude where section
-        query = query.format(excludeWhere='''
+        query = query.format(
+            order='{order}',
+            excludeWhere='''
             id NOT IN (
-            -- exclude
                 SELECT fileId
                 FROM fileTags
                 WHERE tagId IN (
@@ -137,6 +145,26 @@ def getFiles(tags):
             )
         '''.format(','.join(['?'] * len(excludeTags))));
         queryParams += tuple(excludeTags)
+
+        # order sectinon
+        query = query.format(
+            order='''
+            ORDER BY (
+                CASE
+                WHEN id IN (
+                    SELECT DISTINCT fileId
+                    FROM fileTags
+                    WHERE tagId IN (
+                        SELECT id
+                        FROM tags
+                        WHERE name in ({})
+                    )
+                ) THEN id
+                ELSE -id
+                END
+            )
+            '''.format(','.join(['?'] * len(orderTags))))
+        queryParams += tuple(orderTags)
 
         cur.execute(query, queryParams)
 
