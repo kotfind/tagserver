@@ -299,3 +299,5 @@ def getNeighbours(tags, idx):
             prevIdx = files[i - 1].idx if i > 0 else None
             nextIdx = files[i + 1].idx if i + 1 < len(files) else None
             return (prevIdx, nextIdx)
+
+    return (None, None)
