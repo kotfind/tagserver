@@ -1,54 +1,22 @@
 {% extends 'base.j2' %}
 
-{% block title %}Main Page{% endblock %}
+{% block title %}Index{% endblock %}
 
 {% block head %}
 <style>
 
+html, body, #tagsForm {
+    height: 100%;
+}
+
 #tagsForm {
     display: flex;
+    /* align-items: center; */
     justify-content: center;
 }
 
-#imgsContainer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-}
-
-.imgWrapper {
-    max-height: 45vh;
-    width: 50%;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 5px;
-}
-
-.img {
-    max-width: 100%;
-    max-height: 100%;
-}
-
-#upArrow {
-    border: solid black;
-    border-width: 5px 5px 0 0;
-    display: inline-block;
-    padding: 10px;
-    transform: translateY(30%) rotate(-45deg);
-    position: relative;
-}
-
-#upDiv {
-    border-radius: 50%;
-    background-color: white;
-    display: inline-block;
-    padding: 10px;
-
-    position: fixed;
-    right: 5px;
-    bottom: 5px;
+#tagsForm input[type="text"] {
+    margin: 5px 0;
 }
 
 </style>
@@ -56,24 +24,14 @@
 
 {% block contents %}
     <form id="tagsForm">
-        <div id="searchWrapper">
-            <input type="text" name="tags"
-                   id="tagsField" placeholder="Tags"
-                  value="{{ ' '.join(tags) }}">
+        <div>
+            Search:
+            <br>
+
+            <input type="text" name="tags" id="tagsField" placeholder="Tags">
+            <br>
+
             <input type="submit">
-            <hr>
         </div>
     </form>
-
-    <div id="imgsContainer">
-        {% for file in files %}
-            <a class="imgWrapper" id="file{{ file.idx }}" href="/file/{{ file.idx }}?queryTags={{ '+'.join(tags) }}">
-                <img class="img" src="/thumb/{{ file.thumbFilename }}">
-            </a>
-        {% endfor %}
-    </div>
-
-    <a id="upDiv" href="#top">
-        <div id="upArrow"></div>
-    </a>
 {% endblock %}

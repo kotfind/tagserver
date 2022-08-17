@@ -36,10 +36,14 @@ app = flask.Flask(__name__, template_folder = logics.static('templates'))
 
 @app.route('/')
 def index():
+    return flask.render_template('index.j2')
+
+@app.route('/search')
+def search():
     tags = flask.request.args.get('tags', '').lower().split()
 
     return flask.render_template(
-        'index.j2',
+        'search.j2',
         files = logics.getFiles(tags),
         tags = tags
         )
