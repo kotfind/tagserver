@@ -58,7 +58,7 @@ form {
 {% block contents %}
     <div id="btnWrapper">
         <a class="btn" {% if prevId %}href="/file/{{ prevId }}?queryTags={{ '+'.join(queryTags) }}" {% endif %}></a>
-        <a class="btn" href="/search?tags={{ '+'.join(queryTags) }}#file{{ file.idx }}"></a>
+        <a class="btn" href="/search?tags={{ '+'.join(queryTags) }}"></a>
         <a class="btn" {% if nextId %}href="/file/{{ nextId }}?queryTags={{ '+'.join(queryTags) }}" {% endif %}></a>
     </div>
 
