@@ -41,10 +41,11 @@ def index():
 @app.route('/search')
 def search():
     tags = flask.request.args.get('tags', '').lower().split()
+    page = flask.request.args.get('page', default=0, type=int)
 
     return flask.render_template(
         'search.j2',
-        files = logics.getFiles(tags),
+        files = logics.getFiles(tags, page),
         tags = tags
         )
 

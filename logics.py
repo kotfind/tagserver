@@ -22,7 +22,7 @@ def init(cfg):
         shutil.copy(static('.tagserver.cfg'), cfgFile)
     cfg.read(cfgFile)
 
-    global imgDir, thumbDir, dbFile, imgExtensions, videoExtensions, maxThumbSize, orderTags
+    global imgDir, thumbDir, dbFile, imgExtensions, videoExtensions, maxThumbSize, orderTags, itemsOnPage
     storage = os.path.realpath(os.path.expanduser(cfg['File System']['storage']))
     imgDir = os.path.join(storage, 'img')
     thumbDir = os.path.join(storage, 'thumb')
@@ -31,6 +31,7 @@ def init(cfg):
     videoExtensions = cfg['Files']['video extensions'].split()
     maxThumbSize = tuple(map(int, cfg['Files']['thumb size'].split('x')))
     orderTags = cfg['Files']['order tags'].split()
+    itemsOnPage = int(cfg['Interface']['items on page'])
 
     firstRun = not os.path.exists(storage)
 
@@ -83,7 +84,7 @@ def saveFile(file, tags):
 
             updateTags(fileIdx, tags)
 
-def getFiles(tags):
+def getFiles(tags, page=None):
     with sqlite3.connect(dbFile) as con:
         cur = con.cursor()
 
@@ -102,6 +103,7 @@ def getFiles(tags):
               AND {includeWhere}
               AND {excludeWhere}
             {order}
+            {limit}
         '''
         queryParams = ()
 
@@ -156,6 +158,16 @@ def getFiles(tags):
             )
             '''.format(','.join(['?'] * len(orderTags))))
         queryParams += tuple(orderTags)
+
+        # limit section
+        if page is not None:
+            query = query.replace('{limit}', '''
+            LIMIT ?
+            OFFSET ?
+            ''')
+            queryParams += (itemsOnPage, page * itemsOnPage)
+        else:
+            query = query.replace('{limit}', '')
 
         cur.execute(query, queryParams)
 
