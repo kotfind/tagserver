@@ -31,24 +31,9 @@
     max-height: 100%;
 }
 
-#upArrow {
-    border: solid black;
-    border-width: 5px 5px 0 0;
-    display: inline-block;
-    padding: 10px;
-    transform: translateY(30%) rotate(-45deg);
-    position: relative;
-}
-
-#upDiv {
-    border-radius: 50%;
-    background-color: white;
-    display: inline-block;
-    padding: 10px;
-
-    position: fixed;
-    right: 5px;
-    bottom: 5px;
+#pageBtns {
+    display: flex;
+    justify-content: center;
 }
 
 </style>
@@ -71,9 +56,14 @@
                 <img class="img" src="/thumb/{{ file.thumbFilename }}">
             </a>
         {% endfor %}
+        {% if not files %}
+            <h1>Nothing's here!</h1>
+        {% endif %}
     </div>
 
-    <a id="upDiv" href="#top">
-        <div id="upArrow"></div>
-    </a>
+    <div id="pageBtns">
+        <a href="/search?tags={{ '+'.join(tags) }}&page={{ page - 1 }}">Prev</a>
+        <span style="margin: 0 5px;">{{ page + 1 }}</span>
+        <a href="/search?tags={{ '+'.join(tags) }}&page={{ page + 1 }}">Next</a>
+    </div>
 {% endblock %}
