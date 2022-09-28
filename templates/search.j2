@@ -31,6 +31,11 @@
     max-height: 100%;
 }
 
+#pageBtns {
+    display: flex;
+    justify-content: center;
+}
+
 </style>
 {% endblock %}
 
@@ -51,5 +56,14 @@
                 <img class="img" src="/thumb/{{ file.thumbFilename }}">
             </a>
         {% endfor %}
+        {% if not files %}
+            <h1>Nothing's here!</h1>
+        {% endif %}
+    </div>
+
+    <div id="pageBtns">
+        <a href="/search?tags={{ '+'.join(tags) }}&page={{ page - 1 }}">Prev</a>
+        <span style="margin: 0 5px;">{{ page + 1 }}</span>
+        <a href="/search?tags={{ '+'.join(tags) }}&page={{ page + 1 }}">Next</a>
     </div>
 {% endblock %}

@@ -46,7 +46,8 @@ def search():
     return flask.render_template(
         'search.j2',
         files = logics.getFiles(tags, page),
-        tags = tags
+        tags = tags,
+        page = page
         )
 
 @app.route('/upload', methods=['POST', 'GET'])
