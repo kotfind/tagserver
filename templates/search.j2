@@ -34,10 +34,15 @@
 #pageBtns {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 .pageLink {
     margin: 0 0.5em;
+}
+
+.pageLink[href] {
+    color: blue;
 }
 
 </style>
@@ -67,7 +72,9 @@
 
     <div id="pageBtns">
         {% for p in range(countPages) %}
-            <a class="pageLink" {% if p != page %}href="/search?tags={{ '+'.join(tags) }}&page={{ p }}"{% endif %}>{{ p + 1 }}</a>
+            <a class="pageLink" {% if p != page %}
+                href="/search?tags={{ '+'.join(tags) }}&page={{ p }}"
+                {% endif %}>{{ p + 1 }}</a>
         {% endfor %}
     </div>
 {% endblock %}
