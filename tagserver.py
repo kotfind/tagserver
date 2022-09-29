@@ -47,7 +47,8 @@ def search():
         'search.j2',
         files = logics.getFiles(tags, page),
         tags = tags,
-        page = page
+        page = page,
+        countPages = logics.countPages(tags)
         )
 
 @app.route('/upload', methods=['POST', 'GET'])

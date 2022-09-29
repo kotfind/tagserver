@@ -84,51 +84,30 @@ def saveFile(file, tags):
 
             updateTags(fileIdx, tags)
 
-def getFiles(tags, page=None):
-    with sqlite3.connect(dbFile) as con:
-        cur = con.cursor()
+def formWhereSection(tags):
+    '''
+        Returns (where section string, params tuple)
+    '''
 
-        includeTags = []
-        excludeTags = []
-        for tag in tags:
-            if tag[0] == '-':
-                excludeTags.append(tag[1:])
-            else:
-                includeTags.append(tag)
-
-        query = '''
-            SELECT *
-            FROM files
-            WHERE TRUE
-              AND {includeWhere}
-              AND {excludeWhere}
-            {order}
-            {limit}
-        '''
-        queryParams = ()
-
-        # include where section
-        if includeTags:
-            query = query.replace('{includeWhere}', '''
-                id IN(
-                    SELECT fileId
-                    FROM fileTags
-                    WHERE tagId IN (
-                        SELECT id
-                        FROM tags
-                        WHERE name IN ({})
-                    )
-                    GROUP BY fileId
-                    HAVING COUNT(*) = ?
-                )
-            '''.format(','.join(['?'] * len(includeTags))))
-            queryParams += tuple(includeTags) + (len(includeTags),)
+    includeTags = []
+    excludeTags = []
+    for tag in tags:
+        if tag[0] == '-':
+            excludeTags.append(tag[1:])
         else:
-            query = query.replace('{includeWhere}', 'TRUE')
+            includeTags.append(tag)
 
-        # exclude where section
-        query = query.replace('{excludeWhere}', '''
-            id NOT IN (
+    query = '''
+        WHERE TRUE
+          AND {includeWhere}
+          AND {excludeWhere}
+    '''
+    queryParams = ()
+
+    # include where section
+    if includeTags:
+        query = query.replace('{includeWhere}', '''
+            id IN(
                 SELECT fileId
                 FROM fileTags
                 WHERE tagId IN (
@@ -136,9 +115,47 @@ def getFiles(tags, page=None):
                     FROM tags
                     WHERE name IN ({})
                 )
+                GROUP BY fileId
+                HAVING COUNT(*) = ?
             )
-        '''.format(','.join(['?'] * len(excludeTags))));
-        queryParams += tuple(excludeTags)
+        '''.format(','.join(['?'] * len(includeTags))))
+        queryParams += tuple(includeTags) + (len(includeTags),)
+    else:
+        query = query.replace('{includeWhere}', 'TRUE')
+
+    # exclude where section
+    query = query.replace('{excludeWhere}', '''
+        id NOT IN (
+            SELECT fileId
+            FROM fileTags
+            WHERE tagId IN (
+                SELECT id
+                FROM tags
+                WHERE name IN ({})
+            )
+        )
+    '''.format(','.join(['?'] * len(excludeTags))));
+    queryParams += tuple(excludeTags)
+
+    return (query, queryParams)
+
+def getFiles(tags, page=None):
+    with sqlite3.connect(dbFile) as con:
+        cur = con.cursor()
+
+        query = '''
+            SELECT *
+            FROM files
+            {whereSection}
+            {order}
+            {limit}
+        '''
+        queryParams = ()
+
+        # where section
+        whereSection, whereSectionParams = formWhereSection(tags)
+        query = query.replace('{whereSection}', whereSection)
+        queryParams += whereSectionParams
 
         # order sectinon
         query = query.replace('{order}', '''
@@ -172,6 +189,20 @@ def getFiles(tags, page=None):
         cur.execute(query, queryParams)
 
         return list(map(lambda f: File(*f), cur.fetchall()))
+
+def countPages(tags):
+    with sqlite3.connect(dbFile) as con:
+        cur = con.cursor()
+
+        whereSection, whereSectionParams = formWhereSection(tags)
+
+        cur.execute('''
+            SELECT COUNT(*)
+            FROM files
+            {}
+        '''.format(whereSection), whereSectionParams)
+
+        return (int(cur.fetchone()[0]) + itemsOnPage - 1) // itemsOnPage
 
 def getFile(idx):
     with sqlite3.connect(dbFile) as con:

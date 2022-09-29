@@ -63,7 +63,7 @@
 
     <div id="pageBtns">
         <a href="/search?tags={{ '+'.join(tags) }}&page={{ page - 1 }}">Prev</a>
-        <span style="margin: 0 5px;">{{ page + 1 }}</span>
+        <span style="margin: 0 5px;">{{ page + 1 }} from {{ countPages }}</span>
         <a href="/search?tags={{ '+'.join(tags) }}&page={{ page + 1 }}">Next</a>
     </div>
 {% endblock %}
