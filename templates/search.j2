@@ -36,6 +36,10 @@
     justify-content: center;
 }
 
+.pageLink {
+    margin: 0 0.5em;
+}
+
 </style>
 {% endblock %}
 
@@ -62,8 +66,8 @@
     </div>
 
     <div id="pageBtns">
-        <a href="/search?tags={{ '+'.join(tags) }}&page={{ page - 1 }}">Prev</a>
-        <span style="margin: 0 5px;">{{ page + 1 }} from {{ countPages }}</span>
-        <a href="/search?tags={{ '+'.join(tags) }}&page={{ page + 1 }}">Next</a>
+        {% for p in range(countPages) %}
+            <a class="pageLink" {% if p != page %}href="/search?tags={{ '+'.join(tags) }}&page={{ p }}"{% endif %}>{{ p + 1 }}</a>
+        {% endfor %}
     </div>
 {% endblock %}
