@@ -43,12 +43,16 @@ def search():
     tags = flask.request.args.get('tags', '').lower().split()
     page = flask.request.args.get('page', default=0, type=int)
 
+    countPages = logics.countPages(tags)
+
     return flask.render_template(
         'search.j2',
         files = logics.getFiles(tags, page),
         tags = tags,
         page = page,
-        countPages = logics.countPages(tags)
+        countPages = countPages,
+        minPage = max(0, page - 3),
+        maxPage = min(countPages - 1, page + 3)
         )
 
 @app.route('/upload', methods=['POST', 'GET'])

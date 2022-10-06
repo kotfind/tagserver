@@ -39,6 +39,7 @@
 
 .pageLink {
     margin: 0 0.5em;
+    font-size: 1.5em;
 }
 
 .pageLink[href] {
@@ -71,10 +72,27 @@
     </div>
 
     <div id="pageBtns">
-        {% for p in range(countPages) %}
+        <!-- goto first page button -->
+        <a class="pageLink" href="/search?tags={{ '+'.join(tags) }}&page=0">&lt;&lt;</a>
+
+        <!-- ldots -->
+        {% if minPage != 0 %}
+            <a class="pageLink">...</a>
+        {% endif %}
+
+        <!-- page buttons -->
+        {% for p in range(minPage, maxPage + 1) %}
             <a class="pageLink" {% if p != page %}
                 href="/search?tags={{ '+'.join(tags) }}&page={{ p }}"
                 {% endif %}>{{ p + 1 }}</a>
         {% endfor %}
+
+        <!-- ldots -->
+        {% if maxPage + 1 != countPages %}
+            <a class="pageLink">...</a>
+        {% endif %}
+
+        <!-- goto last page button -->
+        <a class="pageLink" href="/search?tags={{ '+'.join(tags) }}&page={{ countPages - 1 }}">&gt;&gt;</a>
     </div>
 {% endblock %}
