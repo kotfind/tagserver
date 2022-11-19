@@ -38,3 +38,16 @@ app.register_blueprint(logout.bp)
 app.register_blueprint(search.bp)
 app.register_blueprint(taglist.bp)
 app.register_blueprint(upload.bp)
+
+# Won't work inside login template
+@app.before_request
+def before_request():
+    from flask import request, redirect
+    if request.path == '/login':
+        return
+
+    user = request.cookies.get('user')
+    password = request.cookies.get('password')
+
+    if not logics.checkUser(user, password):
+        return redirect('/login')

@@ -3,17 +3,6 @@ import logics
 
 bp = Blueprint('login', __name__)
 
-@bp.before_request
-def before_request():
-    if request.path == '/login':
-        return
-
-    user = request.cookies.get('user')
-    password = request.cookies.get('password')
-
-    if not logics.checkUser(user, password):
-        return redirect('/login')
-
 @bp.route('/login', methods=['POST', 'GET'])
 def login():
     if request.method == 'GET':
