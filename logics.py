@@ -344,3 +344,22 @@ def getNeighbours(tags, idx):
             return (prevIdx, nextIdx)
 
     return (None, None)
+
+def getUsers():
+    with sqlite3.connect(dbFile) as con:
+        cur = con.cursor()
+        cur.execute('''
+            SELECT user
+            FROM users
+        ''')
+        return list(map(lambda x: x[0], cur.fetchall()))
+
+def deleteUser(user):
+    with sqlite3.connect(dbFile) as con:
+        cur = con.cursor()
+        cur.execute('''
+            DELETE
+            FROM users
+            WHERE user = ?
+        ''', (user,))
+        return cur.rowcount == 1

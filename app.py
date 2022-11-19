@@ -3,17 +3,31 @@
 import logics
 
 import flask
-import waitress
+import click
 
 app = flask.Flask(__name__, template_folder = logics.static('templates'))
 
-@app.cli.command('adduser')
-def adduser():
+userCli = flask.cli.AppGroup('user')
+
+@userCli.command('add')
+def addUser():
     from getpass import getpass
     print('Adding new user')
     user = input('User: ').strip()
     password = getpass('Password: ').strip()
     logics.addUser(user, password)
+
+@userCli.command('list')
+def listUsers():
+    print('\n'.join(logics.getUsers()))
+
+@userCli.command('delete')
+@click.argument('name')
+def deleteUser(name):
+    if not logics.deleteUser(name):
+        print('Error: could not delete user')
+
+app.cli.add_command(userCli)
 
 import delete
 import file
