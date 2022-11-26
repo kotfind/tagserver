@@ -334,16 +334,30 @@ def deleteFile(idx):
             )
         ''')
 
-def getNeighbours(tags, idx):
-    files = getFiles(tags)
+def getNeighbours(idx, **kwargs):
+    # Too slow; Rewrite
+    if 'tags' in kwargs:
+        files = getFiles(kwargs['tags'])
 
-    for i in range(len(files)):
-        if files[i].idx == idx:
-            prevIdx = files[i - 1].idx if i > 0 else None
-            nextIdx = files[i + 1].idx if i + 1 < len(files) else None
-            return (prevIdx, nextIdx)
+        for i in range(len(files)):
+            if files[i].idx == idx:
+                prevIdx = files[i - 1].idx if i > 0 else None
+                nextIdx = files[i + 1].idx if i + 1 < len(files) else None
+                return (prevIdx, nextIdx)
 
-    return (None, None)
+        return (None, None)
+    elif 'groupId' in kwargs:
+        files = getGroupFiles(kwargs['groupId'])
+
+        for i in range(len(files)):
+            if files[i].idx == idx:
+                prevIdx = files[i - 1].idx if i > 0 else None
+                nextIdx = files[i + 1].idx if i + 1 < len(files) else None
+                return (prevIdx, nextIdx)
+
+        return (None, None)
+    else:
+        raise TypeError()
 
 def getUsers():
     with sqlite3.connect(dbFile) as con:
@@ -363,3 +377,14 @@ def deleteUser(user):
             WHERE user = ?
         ''', (user,))
         return cur.rowcount == 1
+
+def getGroupFiles(groupId):
+    with sqlite3.connect(dbFile) as con:
+        cur = con.cursor()
+        cur.execute('''
+            SELECT *
+            FROM files
+            WHERE parentId == ?
+        ''', (groupId,))
+
+        return list(map(lambda f: File(*f), cur.fetchall()))

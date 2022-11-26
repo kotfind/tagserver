@@ -62,7 +62,14 @@
 
     <div id="imgsContainer">
         {% for file in files %}
-            <a class="imgWrapper" id="file{{ file.idx }}" href="/file/{{ file.idx }}?queryTags={{ '+'.join(tags) }}">
+            {% if file.parentId and not groupId %}
+                {% set href = '/group/{}'.format(file.parentId) %}
+            {% elif groupId %}
+                {% set href = '/file/{}?groupId={}'.format(file.idx, groupId) %}
+            {% else %}
+                {% set href = '/file/{}?queryTags={}'.format(file.idx, '+'.join(tags)) %}
+            {% endif %}
+            <a class="imgWrapper" id="file{{ file.idx }}" href="{{ href }}">
                 <img class="img" src="/thumb/{{ file.thumbFilename }}">
             </a>
         {% endfor %}
@@ -71,6 +78,7 @@
         {% endif %}
     </div>
 
+    {% if countPages %}
     <div id="pageBtns">
         <!-- goto first page button -->
         <a class="pageLink" href="/search?tags={{ '+'.join(tags) }}&page=0">&lt;&lt;</a>
@@ -95,4 +103,5 @@
         <!-- goto last page button -->
         <a class="pageLink" href="/search?tags={{ '+'.join(tags) }}&page={{ countPages - 1 }}">&gt;&gt;</a>
     </div>
+    {% endif %}
 {% endblock %}

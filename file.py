@@ -10,17 +10,29 @@ def file(idx):
         file = logics.getFile(idx)
         ownTags = logics.getTags(idx)
         queryTags = request.args.get('queryTags', '').lower().split()
-        prevId, nextId = logics.getNeighbours(queryTags, idx)
+        groupId = request.args.get('groupId', '')
+        if groupId:
+            groupId = int(groupId)
+            prevId, nextId = logics.getNeighbours(
+                idx,
+                groupId = groupId
+            )
+        else:
+            prevId, nextId = logics.getNeighbours(
+                idx,
+                tags = queryTags
+            )
 
         return render_template(
             'file.j2',
             file = file,
             ownTags = ownTags,
             queryTags = queryTags,
+            groupId = groupId,
             isVideo = logics.isVideo(file.imgFilename),
             prevId = prevId,
             nextId = nextId,
-            )
+        )
 
     tags = list(map(lambda s: s.strip().lower().replace(' ', '_'),
         request.form['tags'].splitlines()))

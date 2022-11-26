@@ -29,6 +29,10 @@ def deleteUser(name):
 
 app.cli.add_command(userCli)
 
+import configparser
+cfg = configparser.ConfigParser()
+logics.init(cfg)
+
 import delete
 import file
 import filesystem
@@ -38,10 +42,7 @@ import logout
 import search
 import taglist
 import upload
-
-import configparser
-cfg = configparser.ConfigParser()
-logics.init(cfg)
+import group
 
 app.register_blueprint(delete.bp)
 app.register_blueprint(file.bp)
@@ -52,6 +53,7 @@ app.register_blueprint(logout.bp)
 app.register_blueprint(search.bp)
 app.register_blueprint(taglist.bp)
 app.register_blueprint(upload.bp)
+app.register_blueprint(group.bp)
 
 # Won't work inside login template
 @app.before_request

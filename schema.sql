@@ -1,7 +1,8 @@
 CREATE TABLE files(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     imgFilename CHAR(32) NOT NULL UNIQUE,
-    thumbFilename CHAR(32) NOT NULL UNIQUE
+    thumbFilename CHAR(32) NOT NULL UNIQUE,
+    parentId INTEGER REFERENCES files(id)
 );
 
 CREATE TABLE tags(
