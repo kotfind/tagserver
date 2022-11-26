@@ -1,4 +1,5 @@
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, redirect
+
 import logics
 
 bp = Blueprint('file', __name__)
