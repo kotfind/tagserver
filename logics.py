@@ -97,7 +97,7 @@ def formWhereSection(tags):
             includeTags.append(tag)
 
     query = '''
-        WHERE TRUE
+        WHERE (parentId == id OR parentId IS NULL)
           AND {includeWhere}
           AND {excludeWhere}
     '''

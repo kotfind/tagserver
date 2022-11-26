@@ -46,6 +46,10 @@
     color: blue;
 }
 
+.groupImg {
+    border: 5px solid magenta;
+}
+
 </style>
 {% endblock %}
 
@@ -68,13 +72,14 @@
         {% for file in files %}
             {% if file.parentId and not groupId %}
                 {% set href = '/group/{}'.format(file.parentId) %}
+                {% set groupParent = True %}
             {% elif groupId %}
                 {% set href = '/file/{}?groupId={}'.format(file.idx, groupId) %}
             {% else %}
                 {% set href = '/file/{}?queryTags={}'.format(file.idx, '+'.join(tags)) %}
             {% endif %}
             <a class="imgWrapper" id="file{{ file.idx }}" href="{{ href }}">
-                <img class="img" src="/thumb/{{ file.thumbFilename }}">
+                <img class="img {% if groupParent %}groupImg{% endif %}" src="/thumb/{{ file.thumbFilename }}">
             </a>
         {% endfor %}
         {% if not files %}
