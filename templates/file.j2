@@ -57,17 +57,17 @@ form {
 
 {% block contents %}
     <div id="btnWrapper">
-        <a class="btn" {% if prevId %}href="/file/{{ prevId }}?queryTags={{ '+'.join(queryTags) }}" {% endif %}></a>
+        <a class="btn" {% if prevId %}href="/file/{{ prevId }}?groupId={{ groupId }}&queryTags={{ '+'.join(queryTags) }}" {% endif %}></a>
         {% if groupId %}
             {% set href = '/group/{}'.format(groupId) %}
         {% else %}
             {% set href = '/search?tags={}'.format('+'.join(queryTags)) %}
         {% endif %}
         <a class="btn" href="{{ href }}"></a>
-        <a class="btn" {% if nextId %}href="/file/{{ nextId }}?queryTags={{ '+'.join(queryTags) }}" {% endif %}></a>
+        <a class="btn" {% if nextId %}href="/file/{{ nextId }}?groupId={{ groupId }}&queryTags={{ '+'.join(queryTags) }}" {% endif %}></a>
     </div>
 
-    <a id="fileWrapper" {% if not isVideo and nextId %}href="/file/{{ nextId }}?queryTags={{ '+'.join(queryTags) }}"{% endif %}>
+    <a id="fileWrapper" {% if not isVideo and nextId %}href="/file/{{ nextId }}?groupId={{ groupId }}&queryTags={{ '+'.join(queryTags) }}"{% endif %}>
         <{% if isVideo %}video controls{% else %}img{% endif %} id="file" src="/img/{{ file.imgFilename }}">
     </a>
 
