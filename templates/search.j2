@@ -89,8 +89,15 @@
 
     {% if countPages %}
     <div id="pageBtns">
+
+        {% if groupId %}
+            {% set baseHref = '/group/{}?page='.format(groupId) %}
+        {% else %}
+            {% set baseHref = '/search?tags={}&page='.format('+'.join(tags)) %}
+        {% endif %}
         <!-- goto first page button -->
-        <a class="pageLink" href="/search?tags={{ '+'.join(tags) }}&page=0">&lt;&lt;</a>
+
+        <a class="pageLink" href="{{ baseHref + '0' }}">&lt;&lt;</a>
 
         <!-- ldots -->
         {% if minPage != 0 %}
@@ -100,7 +107,7 @@
         <!-- page buttons -->
         {% for p in range(minPage, maxPage + 1) %}
             <a class="pageLink" {% if p != page %}
-                href="/search?tags={{ '+'.join(tags) }}&page={{ p }}"
+                   href="{{ baseHref }}{{p}}"
                 {% endif %}>{{ p + 1 }}</a>
         {% endfor %}
 
@@ -110,7 +117,7 @@
         {% endif %}
 
         <!-- goto last page button -->
-        <a class="pageLink" href="/search?tags={{ '+'.join(tags) }}&page={{ countPages - 1 }}">&gt;&gt;</a>
+        <a class="pageLink" href="{{ baseHref }}{{ countPages - 1 }}">&gt;&gt;</a>
     </div>
     {% endif %}
 {% endblock %}
