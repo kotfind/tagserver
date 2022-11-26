@@ -7,8 +7,14 @@ bp = Blueprint('group', __name__)
 def search(groupId):
     page = request.args.get('page', default=0, type=int)
 
+    countPages = logics.countPages(groupId = groupId)
+
     return render_template(
         'search.j2',
-        files = logics.getGroupFiles(groupId),
-        groupId = groupId
+        files = logics.getFiles(groupId = groupId, page = page),
+        groupId = groupId,
+        page = page,
+        countPages = countPages,
+        minPage = max(0, page - 3),
+        maxPage = min(countPages - 1, page + 3)
     )

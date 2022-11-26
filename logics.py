@@ -22,7 +22,7 @@ def init(cfg):
         shutil.copy(static('.tagserver.cfg'), cfgFile)
     cfg.read(cfgFile)
 
-    global imgDir, thumbDir, dbFile, imgExtensions, videoExtensions, maxThumbSize, orderTags, itemsOnPage
+    global imgDir, thumbDir, dbFile, imgExtensions, videoExtensions, maxThumbSize, itemsOnPage
     storage = os.path.realpath(os.path.expanduser(cfg['File System']['storage']))
     imgDir = os.path.join(storage, 'img')
     thumbDir = os.path.join(storage, 'thumb')
@@ -30,7 +30,6 @@ def init(cfg):
     imgExtensions = cfg['Files']['image extensions'].split()
     videoExtensions = cfg['Files']['video extensions'].split()
     maxThumbSize = tuple(map(int, cfg['Files']['thumb size'].split('x')))
-    orderTags = cfg['Files']['order tags'].split()
     itemsOnPage = int(cfg['Interface']['items on page'])
 
     firstRun = not os.path.exists(storage)
@@ -139,50 +138,45 @@ def formWhereSection(tags):
 
     return (query, queryParams)
 
-def getFiles(tags, page=None):
+def getFiles(**kwargs):
+    if ('tags' in kwargs) ^ ('groupId' not in kwargs):
+        raise TypeError()
+
     with sqlite3.connect(dbFile) as con:
         cur = con.cursor()
 
         query = '''
             SELECT *
             FROM files
-            {whereSection}
+            {where}
             {order}
             {limit}
         '''
         queryParams = ()
 
-        # where section
-        whereSection, whereSectionParams = formWhereSection(tags)
-        query = query.replace('{whereSection}', whereSection)
-        queryParams += whereSectionParams
+        if 'tags' in kwargs:
+            # where section
+            whereSection, whereSectionParams = formWhereSection(kwargs['tags'])
+            query = query.replace('{where}', whereSection)
+            queryParams += whereSectionParams
+        else:
+            query = query.replace('{where}', '''
+                WHERE parentId == ?
+            ''')
+            queryParams += (kwargs['groupId'],)
 
         # order sectinon
         query = query.replace('{order}', '''
-            ORDER BY (
-                CASE
-                WHEN id IN (
-                    SELECT DISTINCT fileId
-                    FROM fileTags
-                    WHERE tagId IN (
-                        SELECT id
-                        FROM tags
-                        WHERE name in ({})
-                    )
-                ) THEN id
-                ELSE -id
-                END
-            )
-            '''.format(','.join(['?'] * len(orderTags))))
-        queryParams += tuple(orderTags)
+            ORDER BY id {}
+        '''.format('ASC' if 'groupId' in kwargs else 'DESC'))
 
         # limit section
-        if page is not None:
+        if 'page' in kwargs:
             query = query.replace('{limit}', '''
-            LIMIT ?
-            OFFSET ?
+                LIMIT ?
+                OFFSET ?
             ''')
-            queryParams += (itemsOnPage, page * itemsOnPage)
+            queryParams += (itemsOnPage, kwargs['page'] * itemsOnPage)
         else:
             query = query.replace('{limit}', '')
 
@@ -190,19 +184,8 @@ def getFiles(tags, page=None):
 
         return list(map(lambda f: File(*f), cur.fetchall()))
 
-def countPages(tags):
-    with sqlite3.connect(dbFile) as con:
-        cur = con.cursor()
-
-        whereSection, whereSectionParams = formWhereSection(tags)
-
-        cur.execute('''
-            SELECT COUNT(*)
-            FROM files
-            {}
-        '''.format(whereSection), whereSectionParams)
-
-        return (int(cur.fetchone()[0]) + itemsOnPage - 1) // itemsOnPage
+def countPages(**kwargs):
+    return (len(getFiles(**kwargs)) + itemsOnPage - 1) // itemsOnPage
 
 def getFile(idx):
     with sqlite3.connect(dbFile) as con:
@@ -336,28 +319,16 @@ def deleteFile(idx):
 
 def getNeighbours(idx, **kwargs):
     # Too slow; Rewrite
-    if 'tags' in kwargs:
-        files = getFiles(kwargs['tags'])
 
-        for i in range(len(files)):
-            if files[i].idx == idx:
-                prevIdx = files[i - 1].idx if i > 0 else None
-                nextIdx = files[i + 1].idx if i + 1 < len(files) else None
-                return (prevIdx, nextIdx)
+    files = getFiles(**kwargs)
 
-        return (None, None)
-    elif 'groupId' in kwargs:
-        files = getGroupFiles(kwargs['groupId'])
+    for i in range(len(files)):
+        if files[i].idx == idx:
+            prevIdx = files[i - 1].idx if i > 0 else None
+            nextIdx = files[i + 1].idx if i + 1 < len(files) else None
+            return (prevIdx, nextIdx)
 
-        for i in range(len(files)):
-            if files[i].idx == idx:
-                prevIdx = files[i - 1].idx if i > 0 else None
-                nextIdx = files[i + 1].idx if i + 1 < len(files) else None
-                return (prevIdx, nextIdx)
-
-        return (None, None)
-    else:
-        raise TypeError()
+    return (None, None)
 
 def getUsers():
     with sqlite3.connect(dbFile) as con:
@@ -377,14 +348,3 @@ def deleteUser(user):
             WHERE user = ?
         ''', (user,))
         return cur.rowcount == 1
-
-def getGroupFiles(groupId):
-    with sqlite3.connect(dbFile) as con:
-        cur = con.cursor()
-        cur.execute('''
-            SELECT *
-            FROM files
-            WHERE parentId == ?
-        ''', (groupId,))
-
-        return list(map(lambda f: File(*f), cur.fetchall()))

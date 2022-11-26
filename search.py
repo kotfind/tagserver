@@ -8,11 +8,11 @@ def search():
     tags = request.args.get('tags', '').lower().split()
     page = request.args.get('page', default=0, type=int)
 
-    countPages = logics.countPages(tags)
+    countPages = logics.countPages(tags = tags)
 
     return render_template(
         'search.j2',
-        files = logics.getFiles(tags, page),
+        files = logics.getFiles(tags = tags, page = page),
         tags = tags,
         page = page,
         countPages = countPages,
