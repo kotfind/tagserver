@@ -60,6 +60,10 @@
         </div>
     </form>
 
+    {% if groupId %}
+        <h2 align="center">Group Id: {{ groupId }}</h2>
+    {% endif %}
+
     <div id="imgsContainer">
         {% for file in files %}
             {% if file.parentId and not groupId %}
