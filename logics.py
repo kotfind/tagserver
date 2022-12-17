@@ -348,3 +348,27 @@ def deleteUser(user):
             WHERE user = ?
         ''', (user,))
         return cur.rowcount == 1
+
+def parseIds(idsStr):
+    idsStr = idsStr.replace(' ', '')
+    ids = []
+    for part in idsStr.split(','):
+        if '-' in part:
+            st, fn = part.split('-')
+            ids += list(range(int(st), int(fn) + 1))
+        else:
+            ids.append(int(part))
+
+    return ids
+
+def group(parentId, idsStr):
+    ids = parseIds(idsStr)
+    with sqlite3.connect(dbFile) as con:
+        cur = con.cursor()
+        cur.execute('''
+            UPDATE files
+            SET parentId = ?
+            WHERE id IN ({})
+        '''.format(','.join(['?'] * len(ids))),
+            (parentId, *ids)
+        )

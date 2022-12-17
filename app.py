@@ -9,6 +9,7 @@ app = flask.Flask(__name__, template_folder = logics.static('templates'))
 
 userCli = flask.cli.AppGroup('user')
 
+# User cli
 @userCli.command('add')
 def addUser():
     from getpass import getpass
@@ -26,6 +27,13 @@ def listUsers():
 def deleteUser(name):
     if not logics.deleteUser(name):
         print('Error: could not delete user')
+
+# Group cli
+@app.cli.command('group')
+@click.argument('parentid')
+@click.argument('ids')
+def group(parentid, ids):
+    logics.group(int(parentid), ids)
 
 app.cli.add_command(userCli)
 
