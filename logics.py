@@ -361,8 +361,9 @@ def parseIds(idsStr):
 
     return ids
 
-def group(parentId, idsStr):
+def group(idsStr):
     ids = parseIds(idsStr)
+    parentId = ids[0]
     with sqlite3.connect(dbFile) as con:
         cur = con.cursor()
         cur.execute('''

@@ -30,10 +30,9 @@ def deleteUser(name):
 
 # Group cli
 @app.cli.command('group')
-@click.argument('parentid')
 @click.argument('ids')
-def group(parentid, ids):
-    logics.group(int(parentid), ids)
+def group(ids):
+    logics.group(ids)
 
 app.cli.add_command(userCli)
 
